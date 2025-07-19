@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useNostr } from "@/hooks/use-nostr";
+import { ConnectionStatus } from "@/lib/nostr";
 import NavigationHeader from "@/components/navigation-header";
 import HypothesisCard from "@/components/hypothesis-card";
 import CreateHypothesisModal from "@/components/create-hypothesis-modal";
@@ -168,10 +169,40 @@ function HypothesisFeed({
   searchCriteria: HypothesisSearchCriteria;
   onHypothesisClick: (hypothesisId: string) => void;
 }) {
+  const { isConnected, connectionStatus } = useNostr();
+  
   const { data: hypotheses, isLoading, error } = useQuery({
-    queryKey: ['/api/hypotheses', searchCriteria],
-    queryFn: () => HypothesisService.searchHypotheses(searchCriteria),
+    queryKey: ['/api/hypotheses', searchCriteria, isConnected],
+    queryFn: () => {
+      if (!isConnected) {
+        throw new Error('Not connected to Nostr relays');
+      }
+      return HypothesisService.searchHypotheses(searchCriteria);
+    },
+    enabled: isConnected, // Only run query when connected to Nostr
   });
+
+  // Show connection status while not connected
+  if (!isConnected) {
+    return (
+      <Card className="mobile-card">
+        <CardContent className="p-6 text-center">
+          <div className="text-primary mb-2">
+            <i className="fas fa-wifi text-2xl"></i>
+          </div>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Connecting to Nostr Network
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {connectionStatus === ConnectionStatus.CONNECTING 
+              ? 'Establishing connection to decentralized relays...'
+              : 'Click "Connect to Nostr" to load hypotheses from the network'
+            }
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return (

@@ -10,7 +10,7 @@
  */
 
 import { Hypothesis, HypothesisSearchCriteria, AcademicCategory } from "@/domain/hypothesis";
-import { nostrClient, createHypothesisEvent, createFilters } from "@/lib/nostr";
+import { nostrClient, createHypothesisEvent, createFilters, ConnectionStatus } from "@/lib/nostr";
 import { useNostr } from "@/hooks/use-nostr";
 
 /**
@@ -231,9 +231,15 @@ export class HypothesisService {
     criteria: HypothesisSearchCriteria
   ): Promise<HypothesisDTO[]> {
     try {
+      // Check if connected to Nostr network
+      if (nostrClient.getConnectionStatus() !== ConnectionStatus.CONNECTED) {
+        throw new Error('Not connected to Nostr relays. Please connect first.');
+      }
+      
       // Convert domain criteria to Nostr filters
       const filters = criteria.toNostrFilters();
       console.log('Searching for hypotheses with filters:', filters);
+      console.log('Connected relays:', nostrClient.getConnectedRelays());
       
       return new Promise((resolve, reject) => {
         const hypotheses: Hypothesis[] = [];
