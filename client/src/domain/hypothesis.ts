@@ -429,9 +429,11 @@ export class HypothesisSearchCriteria {
    * Converts search criteria to Nostr protocol filters for decentralized querying.
    */
   toNostrFilters() {
+    // Note: In Nostr filters, '#t': ['value1', 'value2'] means OR, not AND
+    // To get events with BOTH tags, we need a different approach
     const baseFilter = {
       kinds: [1],
-      '#t': ['hypothesis', 'blackpaper'], // Must have both tags to identify our app's events
+      '#t': ['blackpaper'], // Filter by our app identifier first
       limit: this.limit,
       since: Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60), // Last 30 days
     };

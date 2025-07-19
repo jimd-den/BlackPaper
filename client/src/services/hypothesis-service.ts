@@ -246,30 +246,40 @@ export class HypothesisService {
             eventCount++;
             console.log(`Received event ${eventCount}:`, event);
             
-            if (NostrEventTransformer.isValidHypothesisEvent(event)) {
-              console.log('Valid hypothesis event found:', event.id);
-              try {
-                const hypothesis = NostrEventTransformer.eventToHypothesis(event);
-                
-                // Apply client-side filtering for text search
-                if (criteria.query) {
-                  const searchQuery = criteria.query.toLowerCase();
-                  const titleMatch = hypothesis.title.toString().toLowerCase().includes(searchQuery);
-                  const bodyMatch = hypothesis.body.toString().toLowerCase().includes(searchQuery);
+            // Check if it's a hypothesis event (has both blackpaper and hypothesis tags)
+            const hasBlackpaperTag = event.tags.some((tag: string[]) => tag[0] === 't' && tag[1] === 'blackpaper');
+            const hasHypothesisTag = event.tags.some((tag: string[]) => tag[0] === 't' && tag[1] === 'hypothesis');
+            
+            if (hasBlackpaperTag && hasHypothesisTag) {
+              console.log('Found BlackPaper hypothesis event:', event.id, event.tags);
+              
+              if (NostrEventTransformer.isValidHypothesisEvent(event)) {
+                console.log('Valid hypothesis event found:', event.id);
+                try {
+                  const hypothesis = NostrEventTransformer.eventToHypothesis(event);
                   
-                  if (!titleMatch && !bodyMatch) {
-                    console.log('Event filtered out by search query');
-                    return; // Skip this event
+                  // Apply client-side filtering for text search
+                  if (criteria.query) {
+                    const searchQuery = criteria.query.toLowerCase();
+                    const titleMatch = hypothesis.title.toString().toLowerCase().includes(searchQuery);
+                    const bodyMatch = hypothesis.body.toString().toLowerCase().includes(searchQuery);
+                    
+                    if (!titleMatch && !bodyMatch) {
+                      console.log('Event filtered out by search query');
+                      return; // Skip this event
+                    }
                   }
+                  
+                  hypotheses.push(hypothesis);
+                  console.log(`Added hypothesis: "${hypothesis.title.toString()}" (total: ${hypotheses.length})`);
+                } catch (error) {
+                  console.warn('Failed to parse hypothesis event:', error);
                 }
-                
-                hypotheses.push(hypothesis);
-                console.log(`Added hypothesis: "${hypothesis.title.toString()}" (total: ${hypotheses.length})`);
-              } catch (error) {
-                console.warn('Failed to parse hypothesis event:', error);
+              } else {
+                console.log('Event failed detailed validation:', event.id);
               }
             } else {
-              console.log('Event failed validation:', event.id, event.tags);
+              console.log('Event missing required tags:', event.id, 'blackpaper:', hasBlackpaperTag, 'hypothesis:', hasHypothesisTag);
             }
           }
         );
