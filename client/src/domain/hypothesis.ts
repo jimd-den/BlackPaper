@@ -431,8 +431,9 @@ export class HypothesisSearchCriteria {
   toNostrFilters() {
     const baseFilter = {
       kinds: [1],
-      '#t': ['hypothesis'],
+      '#t': ['hypothesis', 'blackpaper'], // Must have both tags to identify our app's events
       limit: this.limit,
+      since: Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60), // Last 30 days
     };
 
     // Add category filter if specified

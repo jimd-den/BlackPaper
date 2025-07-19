@@ -228,15 +228,21 @@ export class HypothesisService {
     try {
       // Convert domain criteria to Nostr filters
       const filters = criteria.toNostrFilters();
+      console.log('Searching for hypotheses with filters:', filters);
       
       return new Promise((resolve, reject) => {
         const hypotheses: Hypothesis[] = [];
         let isComplete = false;
+        let eventCount = 0;
         
         const unsubscribe = nostrClient.subscribeToEvents(
           [filters],
           (event) => {
+            eventCount++;
+            console.log(`Received event ${eventCount}:`, event);
+            
             if (NostrEventTransformer.isValidHypothesisEvent(event)) {
+              console.log('Valid hypothesis event found:', event.id);
               try {
                 const hypothesis = NostrEventTransformer.eventToHypothesis(event);
                 
@@ -247,14 +253,18 @@ export class HypothesisService {
                   const bodyMatch = hypothesis.body.toString().toLowerCase().includes(searchQuery);
                   
                   if (!titleMatch && !bodyMatch) {
+                    console.log('Event filtered out by search query');
                     return; // Skip this event
                   }
                 }
                 
                 hypotheses.push(hypothesis);
+                console.log(`Added hypothesis: "${hypothesis.title.toString()}" (total: ${hypotheses.length})`);
               } catch (error) {
                 console.warn('Failed to parse hypothesis event:', error);
               }
+            } else {
+              console.log('Event failed validation:', event.id, event.tags);
             }
           }
         );
@@ -264,6 +274,8 @@ export class HypothesisService {
           if (!isComplete) {
             isComplete = true;
             unsubscribe();
+            
+            console.log(`Search completed. Found ${hypotheses.length} hypotheses from ${eventCount} events`);
             
             // Sort hypotheses according to criteria
             const sortedHypotheses = this.sortHypotheses(hypotheses, criteria.sortBy);

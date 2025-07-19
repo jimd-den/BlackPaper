@@ -60,8 +60,9 @@ export const BLACK_PAPER_EVENT_KINDS = {
 export const DEFAULT_RELAYS = [
   'wss://relay.damus.io',
   'wss://nos.lol',
-  'wss://relay.snort.social',
-  'wss://nostr.wine',
+  'wss://relay.nostr.band',
+  'wss://nostr.mom',
+  'wss://offchain.pub'
 ] as const;
 
 /**
