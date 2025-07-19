@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * BLACK PAPER DESIGN SYSTEM
+ * 
+ * This stylesheet implements the visual design system for our academic discourse platform.
+ * Color choices reflect the scholarly, authoritative nature of academic publishing
+ * while maintaining accessibility and usability standards.
+ */
+
+:root {
+  /* FOUNDATION COLORS - Core neutral palette */
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(220, 14%, 15%);
+  --muted: hsl(210, 8%, 95%);
+  --muted-foreground: hsl(215, 8%, 45%);
+  
+  /* SURFACE COLORS - Card and container backgrounds */
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(220, 14%, 15%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(220, 14%, 15%);
+  
+  /* INTERACTION COLORS - Borders and inputs */
+  --border: hsl(210, 8%, 90%);
+  --input: hsl(210, 8%, 90%);
+  --ring: hsl(207, 90%, 54%);
+  
+  /* BRAND COLORS - Primary academic blue palette */
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(210, 100%, 98%);
+  --secondary: hsl(210, 8%, 95%);
+  --secondary-foreground: hsl(220, 14%, 15%);
+  --accent: hsl(210, 8%, 95%);
+  --accent-foreground: hsl(220, 14%, 15%);
+  
+  /* SEMANTIC COLORS - Supporting and refuting evidence */
+  --supporting: hsl(122, 39%, 49%);
+  --supporting-foreground: hsl(0, 0%, 100%);
+  --supporting-light: hsl(120, 45%, 96%);
+  --supporting-border: hsl(120, 32%, 85%);
+  
+  --refuting: hsl(0, 72%, 51%);
+  --refuting-foreground: hsl(0, 0%, 100%);
+  --refuting-light: hsl(0, 60%, 96%);
+  --refuting-border: hsl(0, 45%, 85%);
+  
+  /* STATUS COLORS - System states and feedback */
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --warning: hsl(38, 95%, 56%);
+  --warning-foreground: hsl(0, 0%, 98%);
+  
+  /* LAYOUT CONSTANTS */
+  --radius: 0.75rem;
+}
+
+.dark {
+  /* DARK MODE PALETTE - Maintains hierarchy in low-light conditions */
+  --background: hsl(220, 13%, 9%);
+  --foreground: hsl(210, 11%, 91%);
+  --muted: hsl(220, 13%, 15%);
+  --muted-foreground: hsl(215, 8%, 65%);
+  
+  --card: hsl(220, 13%, 12%);
+  --card-foreground: hsl(210, 11%, 91%);
+  --popover: hsl(220, 13%, 12%);
+  --popover-foreground: hsl(210, 11%, 91%);
+  
+  --border: hsl(220, 13%, 18%);
+  --input: hsl(220, 13%, 18%);
+  --ring: hsl(207, 90%, 54%);
+  
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(210, 100%, 98%);
+  --secondary: hsl(220, 13%, 18%);
+  --secondary-foreground: hsl(210, 11%, 91%);
+  --accent: hsl(220, 13%, 18%);
+  --accent-foreground: hsl(210, 11%, 91%);
+  
+  --supporting: hsl(122, 39%, 49%);
+  --supporting-foreground: hsl(0, 0%, 100%);
+  --supporting-light: hsl(120, 15%, 15%);
+  --supporting-border: hsl(120, 20%, 25%);
+  
+  --refuting: hsl(0, 72%, 51%);
+  --refuting-foreground: hsl(0, 0%, 100%);
+  --refuting-light: hsl(0, 20%, 15%);
+  --refuting-border: hsl(0, 25%, 25%);
+  
+  --destructive: hsl(0, 62%, 45%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --warning: hsl(38, 75%, 46%);
+  --warning-foreground: hsl(0, 0%, 98%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* TYPOGRAPHY SCALE - Academic reading optimization */
+  h1 { @apply text-2xl font-bold tracking-tight; }
+  h2 { @apply text-xl font-semibold tracking-tight; }
+  h3 { @apply text-lg font-semibold; }
+  h4 { @apply text-base font-medium; }
+  
+  /* ACADEMIC CONTENT STYLING */
+  .hypothesis-content {
+    @apply leading-relaxed text-foreground;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .source-description {
+    @apply text-sm leading-normal text-muted-foreground;
+  }
+}
+
+@layer components {
+  /* SUPPORTING EVIDENCE STYLING */
+  .source-supporting {
+    @apply bg-[var(--supporting-light)] border-[var(--supporting-border)] border;
+  }
+  
+  /* REFUTING EVIDENCE STYLING */
+  .source-refuting {
+    @apply bg-[var(--refuting-light)] border-[var(--refuting-border)] border;
+  }
+  
+  /* VOTE INDICATORS */
+  .vote-positive {
+    @apply text-[var(--supporting)] hover:opacity-80;
+  }
+  
+  .vote-negative {
+    @apply text-[var(--refuting)] hover:opacity-80;
+  }
+  
+  /* NOSTR CONNECTION STATUS */
+  .status-connected {
+    @apply text-[var(--supporting)];
+  }
+  
+  .status-connecting {
+    @apply text-[var(--warning)];
+  }
+  
+  .status-disconnected {
+    @apply text-[var(--refuting)];
+  }
+  
+  /* ACADEMIC CITATION STYLING */
+  .citation-link {
+    @apply text-primary hover:opacity-80 underline text-sm break-all;
+  }
+  
+  /* MOBILE RESPONSIVE UTILITIES */
+  .mobile-card {
+    @apply rounded-xl shadow-sm border border-border hover:shadow-md transition-shadow;
+  }
+  
+  /* LOADING STATES */
+  .loading-pulse {
+    @apply animate-pulse bg-muted rounded;
+  }
+}
+
+@layer utilities {
+  /* TEXT TRUNCATION FOR LONG ACADEMIC CONTENT */
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  
+  /* FOCUS MANAGEMENT FOR ACCESSIBILITY */
+  .focus-visible {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+  
+  /* SMOOTH SCROLLING FOR THREADED COMMENTS */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
+}
