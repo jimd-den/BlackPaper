@@ -214,8 +214,8 @@ export default function HypothesisCard({
   onClick, 
   className = '' 
 }: HypothesisCardProps) {
-  const categoryMetadata = hypothesis.getCategoryMetadata();
   const plainObject = hypothesis.toPlainObject();
+  const categoryMetadata = plainObject.categoryMetadata;
 
   return (
     <Card className={`mobile-card hover:shadow-md transition-shadow cursor-pointer ${className}`}>
