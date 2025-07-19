@@ -177,9 +177,18 @@ export class BlackPaperNostrClient implements NostrClient {
     }
 
     const relays = Array.from(this.connectedRelays);
-    await Promise.allSettled(
+    console.log(`Publishing to ${relays.length} relays:`, relays);
+    
+    const results = await Promise.allSettled(
       relays.map(relay => this.pool.publish([relay], event))
     );
+    
+    const successCount = results.filter(result => result.status === 'fulfilled').length;
+    console.log(`Published to ${successCount}/${relays.length} relays successfully`);
+  }
+
+  getConnectedRelays(): string[] {
+    return Array.from(this.connectedRelays);
   }
 
   /**

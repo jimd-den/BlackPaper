@@ -150,7 +150,11 @@ export class HypothesisService {
       
       // Sign and publish event
       const signedEvent = nostrClient.signEvent(eventTemplate, privateKey);
-      await nostrClient.publishEvent(signedEvent);
+      console.log('Signed event for publishing:', signedEvent);
+      console.log('Event tags:', signedEvent.tags);
+      
+      const publishResult = await nostrClient.publishEvent(signedEvent);
+      console.log('Publish result:', publishResult);
       
       // Create domain object for return
       const hypothesis = Hypothesis.create(
@@ -163,6 +167,7 @@ export class HypothesisService {
         new Date(signedEvent.created_at * 1000)
       );
       
+      console.log('Created hypothesis object:', hypothesis.toPlainObject());
       return hypothesis.toPlainObject() as HypothesisDTO;
     } catch (error) {
       throw new Error(`Failed to create hypothesis: ${error}`);
@@ -276,6 +281,14 @@ export class HypothesisService {
             unsubscribe();
             
             console.log(`Search completed. Found ${hypotheses.length} hypotheses from ${eventCount} events`);
+            console.log('Connected relays:', nostrClient.getConnectedRelays());
+            
+            if (eventCount === 0) {
+              console.warn('No events received from relays. This could indicate:');
+              console.warn('1. No hypotheses have been published yet');
+              console.warn('2. Relay connection issues');
+              console.warn('3. Filter mismatch');
+            }
             
             // Sort hypotheses according to criteria
             const sortedHypotheses = this.sortHypotheses(hypotheses, criteria.sortBy);
@@ -293,7 +306,7 @@ export class HypothesisService {
             
             resolve(hypothesisData);
           }
-        }, 5000); // Wait 5 seconds for events
+        }, 8000); // Wait 8 seconds for events (increased time)
       });
     } catch (error) {
       throw new Error(`Failed to search hypotheses: ${error}`);
