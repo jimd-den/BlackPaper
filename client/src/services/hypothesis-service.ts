@@ -156,6 +156,30 @@ export class HypothesisService {
       const publishResult = await nostrClient.publishEvent(signedEvent);
       console.log('Publish result:', publishResult);
       
+      // Wait a moment for event to propagate, then test if we can find it
+      setTimeout(async () => {
+        console.log('Testing: Searching for just-published event...');
+        const testFilters = {
+          kinds: [1],
+          ids: [signedEvent.id],
+          limit: 1
+        };
+        
+        const testUnsubscribe = nostrClient.subscribeToEvents(
+          [testFilters],
+          (event) => {
+            console.log('Found our published event!', event.id);
+            testUnsubscribe();
+          }
+        );
+        
+        // Stop test search after 3 seconds
+        setTimeout(() => {
+          console.log('Test search completed');
+          testUnsubscribe();
+        }, 3000);
+      }, 1000);
+      
       // Create domain object for return
       const hypothesis = Hypothesis.create(
         signedEvent.id,
@@ -251,6 +275,8 @@ export class HypothesisService {
           (event) => {
             eventCount++;
             console.log(`Received event ${eventCount}:`, event);
+            console.log('Event tags:', event.tags);
+            console.log('Event content preview:', event.content.substring(0, 100));
             
             // Check if it's a hypothesis event (has both blackpaper and hypothesis tags)
             const hasBlackpaperTag = event.tags.some((tag: string[]) => tag[0] === 't' && tag[1] === 'blackpaper');
@@ -304,6 +330,8 @@ export class HypothesisService {
               console.warn('1. No hypotheses have been published yet');
               console.warn('2. Relay connection issues');
               console.warn('3. Filter mismatch');
+              console.warn('4. Events may be too old or not propagated yet');
+              console.warn('5. Testing with broader search (no time filter)');
             }
             
             // Sort hypotheses according to criteria
@@ -322,7 +350,7 @@ export class HypothesisService {
             
             resolve(hypothesisData);
           }
-        }, 8000); // Wait 8 seconds for events (increased time)
+        }, 10000); // Wait 10 seconds for events
       });
     } catch (error) {
       throw new Error(`Failed to search hypotheses: ${error}`);

@@ -435,7 +435,8 @@ export class HypothesisSearchCriteria {
       kinds: [1],
       '#t': ['blackpaper'], // Filter by our app identifier first
       limit: this.limit,
-      since: Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60), // Last 30 days
+      // Removed since filter temporarily to check if we can find any events
+      // since: Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60), // Last 30 days
     };
 
     // Add category filter if specified
