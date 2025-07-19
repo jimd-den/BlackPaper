@@ -180,7 +180,14 @@ export class BlackPaperNostrClient implements NostrClient {
     console.log(`Publishing to ${relays.length} relays:`, relays);
     
     const results = await Promise.allSettled(
-      relays.map(relay => this.pool.publish([relay], event))
+      relays.map(async (relay) => {
+        try {
+          return await this.pool.publish([relay], event);
+        } catch (error) {
+          console.warn(`Failed to publish to ${relay}:`, error);
+          throw error;
+        }
+      })
     );
     
     const successCount = results.filter(result => result.status === 'fulfilled').length;
@@ -203,16 +210,26 @@ export class BlackPaperNostrClient implements NostrClient {
     }
 
     const relays = Array.from(this.connectedRelays);
-    const subscription = this.pool.sub(relays, filters);
+    console.log('Creating subscription with filters:', filters);
+    console.log('Using relays:', relays);
     
-    subscription.on('event', callback);
-    subscription.on('eose', () => {
-      console.log('End of stored events received');
+    // Use the correct SimplePool subscription method
+    const subscription = this.pool.subscribeMany(relays, filters, {
+      onevent(event) {
+        console.log('SimplePool received event:', event.id);
+        callback(event);
+      },
+      oneose() {
+        console.log('End of stored events received from relays');
+      },
+      onclose(reason) {
+        console.log('Subscription closed:', reason);
+      }
     });
 
     // Return unsubscribe function
     return () => {
-      subscription.unsub();
+      subscription.close();
     };
   }
 
