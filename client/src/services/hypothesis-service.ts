@@ -133,20 +133,23 @@ export class HypothesisService {
   static async createHypothesis(
     title: string,
     body: string,
-    category: AcademicCategory
+    category: AcademicCategory,
+    userPrivateKey?: string
   ): Promise<HypothesisDTO> {
     try {
       // Create hypothesis event for Nostr protocol
       const eventTemplate = createHypothesisEvent(title, body, category);
       
-      // Get current user context (assuming useNostr hook provides this)
+      // Get current user context
       const userContext = getCurrentUserContext();
-      if (!userContext?.user) {
+      const privateKey = userPrivateKey || userContext?.user?.privateKey;
+      
+      if (!privateKey) {
         throw new Error('User must be authenticated to create hypotheses');
       }
       
       // Sign and publish event
-      const signedEvent = nostrClient.signEvent(eventTemplate, userContext.user.privateKey);
+      const signedEvent = nostrClient.signEvent(eventTemplate, privateKey);
       await nostrClient.publishEvent(signedEvent);
       
       // Create domain object for return

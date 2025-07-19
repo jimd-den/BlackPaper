@@ -293,10 +293,16 @@ export default function CreateHypothesisModal({
 
   const createHypothesisMutation = useMutation({
     mutationFn: async (data: CreateHypothesisForm) => {
+      console.log('Creating hypothesis:', data);
+      console.log('User context:', { isSignedIn, user: user?.publicKey });
+      if (!user?.privateKey) {
+        throw new Error('User private key is required to publish hypotheses');
+      }
       return HypothesisService.createHypothesis(
         data.title,
         data.body,
-        data.category
+        data.category,
+        user.privateKey
       );
     },
     onSuccess: () => {
@@ -307,9 +313,10 @@ export default function CreateHypothesisModal({
       });
       handleClose();
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Hypothesis creation error:", error);
       toast({
-        title: "Publication Failed",
+        title: "Failed to Create Hypothesis",
         description: error.message || "Failed to publish hypothesis. Please try again.",
         variant: "destructive",
       });
