@@ -1,7 +1,4 @@
-The core issue is that the hypothesis objects being passed to the HypothesisCard component are not proper instances of the Hypothesis class, which leads to the error hypothesis.toPlainObject is not a function, this is fixed by ensuring the data is converted using Hypothesis.fromRecord.
-```
 
-```replit_final_file
 /**
  * HYPOTHESIS SERVICE
  * 
